@@ -1,6 +1,5 @@
 /*   
  * LeHAk
- * v2020.1217.0
  * A Home-Automation-friendly ESP8266-based MQTT Binary Sensor Controller
  * Licensed under the MIT License, Copyright (c) 2020 EricConner.net
 */
@@ -21,13 +20,13 @@
   #define MQTT_PASSWORD "MQTT_PASSWORD"
   
   // Max 7 sensors, don't use D0 or D3. 
-  void sensor_setup() {
+  void sensorSetup() {
     // Sensor 0
     sensor[0].name = "Washing Machine";
     sensor[0].topic = "sensor/moisture/washing_machine";
     sensor[0].statusPin = D5;
     sensor[0].statusLogic = NO;
-    sensor[0].enabled = true;
+    sensor[0].enabled = false;
     
     // Sensor 1
     sensor[1].name = "Hot Water Heater";

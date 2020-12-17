@@ -1,6 +1,6 @@
 /*   
  * LeHAk
- * v2020.1217.0
+ * v2020.1217.1
  * A Home-Automation-friendly ESP8266-based MQTT Binary Sensor Controller
  * Licensed under the MIT License, Copyright (c) 2020 EricConner.net
 */
@@ -31,8 +31,10 @@ void setup() {
   Serial.begin(115200);
   Serial.println("\nStarting LeHAk...\n");
   
-  sensor_setup();
+  // Load sensor data from config.h
+  sensorSetup();
   
+  // Setup pin and initialize values for each sensor
   for (int s = 0; s < ioCount; s++) {
     if (sensor[s].enabled) {
       pinMode(sensor[s].statusPin, INPUT_PULLUP);
@@ -46,11 +48,12 @@ void setup() {
     }
   }
   
-  setup_wifi();
+  setupWifi();
   client.setServer(mqtt_broker, 1883);
   reconnect();
   delay(500);
   
+  // Publish sensor state at startup
   for (int s = 0; s < ioCount; s++) {
     if (sensor[s].enabled) {
       publishState(s);
@@ -69,7 +72,7 @@ void loop() {
 }
 
 // Wifi setup function
-void setup_wifi() {
+void setupWifi() {
   delay(10);
   Serial.print("\nConnecting to ");
   Serial.println(WIFI_SSID);
@@ -86,7 +89,7 @@ void setup_wifi() {
   Serial.println(WiFi.localIP());
 }
 
-// Function that runs in loop() to connect/reconnect to the MQTT broker, and publish the current door statuses on connect
+// Connect/Reconnect to the MQTT broker
 void reconnect() {
   // Loop until we're reconnected
   while (!client.connected()) {
@@ -95,7 +98,7 @@ void reconnect() {
     if (client.connect(mqtt_clientId, mqtt_username, mqtt_password, availabilityTopic, 0, true, "offline")) {
       Serial.println("Connected!\n");
 
-      // Publish the birth message on connect/reconnect
+      // Publish the availability message on connect/reconnect
       Serial.print("Published: ");
       Serial.print(availabilityTopic);
       Serial.println(" - \"online\"");
@@ -107,10 +110,14 @@ void reconnect() {
 // Check sensors function
 void checkSensors() {
   for (int s = 0; s < ioCount; s++) {
+    // Check is sensor is enabled
     if (sensor[s].enabled) {
+      // Get current sensor state
       state[s].value = digitalRead(sensor[s].statusPin);
+      // Check if state has changed
       if (state[s].value != state[s].lastValue) {
         state[s].time = millis();
+        // Debounce input
         if (state[s].time - state[s].lastTime >= debounceTime) {
           publishState(s);
           state[s].lastValue = state[s].value;
@@ -132,29 +139,25 @@ void publishState(uint8_t s) {
     if (sensor[s].statusLogic == NO) {
       Serial.print("Published: ");
       Serial.print(stateTopic);
-      Serial.println(" - \"on\"");
-      client.publish(stateTopic, "on", true);
+      Serial.println(" - \"off\"");
+      client.publish(stateTopic, "off", true);
     } else if (sensor[s].statusLogic == NC) {
       Serial.print("Published: ");
       Serial.print(stateTopic);
-      Serial.println(" - \"off\"");
-      client.publish(stateTopic, "off", true);
-    } else {
-      Serial.println("Error! Specify only either NO or NC for sensor[x].statusLogic in config.h! Not publishing...");
+      Serial.println(" - \"on\"");
+      client.publish(stateTopic, "on", true);
     }
-  } else {
+  } else if (state[s].value == LOW) {
     if (sensor[s].statusLogic == NO) {
       Serial.print("Published: ");
       Serial.print(stateTopic);
-      Serial.println(" - \"off\"");
-      client.publish(stateTopic, "off", true);
+      Serial.println(" - \"on\"");
+      client.publish(stateTopic, "on", true);
     } else if (sensor[s].statusLogic == NC) {
       Serial.print("Published: ");
       Serial.print(stateTopic);
-      Serial.println(" - \"on\"");
-      client.publish(stateTopic, "on", true);
-    } else {
-      Serial.println("Error! Specify only either NO or NC for sensor[x].statusLogic in config.h! Not publishing...");
+      Serial.println(" - \"off\"");
+      client.publish(stateTopic, "off", true);
     }
   }
 }
