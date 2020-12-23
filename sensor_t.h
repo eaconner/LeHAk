@@ -7,15 +7,12 @@
 #ifndef SENSOR_T_H_
   #define SENSOR_T_H_
   
-  #define D1 5
-  #define D2 4
-  #define D4 2
-  #define D5 14
-  #define D6 12 
-  #define D7 13
-  #define D8 15
+  #define L1 14
+  #define L2 12 
+  #define L3 13
+  #define L4 15
   
-  #define ioCount 7
+  #define ioCount 4
   
   enum logicBool {
     NO,
@@ -23,9 +20,9 @@
   };
   
   struct sensor_t {
-    String name;
-    String topic;
-    int statusPin;
+    String name = "";
+    String topic = "";
+    int statusPin = 0;
     logicBool statusLogic = NC;
     bool state = false;
     bool enabled = false;

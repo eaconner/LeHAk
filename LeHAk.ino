@@ -1,6 +1,6 @@
 /*   
  * LeHAk
- * v2020.1217.1
+ * v2020.1223.0
  * A Home-Automation-friendly ESP8266-based MQTT Binary Sensor Controller
  * Licensed under the MIT License, Copyright (c) 2020 EricConner.net
 */
@@ -20,8 +20,7 @@ const char* mqtt_password = MQTT_PASSWORD;
 int debounceTime = 2000;
 
 String availabilityBase = MQTT_CLIENTID;
-String availabilitySuffix = "/availability";
-String availabilityTopicStr = availabilityBase + availabilitySuffix;
+String availabilityTopicStr = availabilityBase + "/availability";
 const char* availabilityTopic = availabilityTopicStr.c_str();
 
 WiFiClient espClient;
@@ -29,7 +28,8 @@ PubSubClient client(espClient);
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("\nStarting LeHAk...\n");
+  Serial.println("\n--- Starting LeHAk ---");
+  Serial.println("---- v2020.1223.0 ----\n");
   
   // Load sensor data from config.h
   sensorSetup();
@@ -132,32 +132,33 @@ void checkSensors() {
 
 // Publish sensor state function
 void publishState(uint8_t s) {
-  String stateStr = sensor[s].topic + "/state";
+  String stateBase = MQTT_CLIENTID;
+  String stateStr = stateBase + "/" + sensor[s].topic + "/state";
   const char*  stateTopic = stateStr.c_str();
   
   if (state[s].value == HIGH) {
     if (sensor[s].statusLogic == NO) {
       Serial.print("Published: ");
       Serial.print(stateTopic);
-      Serial.println(" - \"off\"");
-      client.publish(stateTopic, "off", true);
+      Serial.println(" - \"on\"");
+      client.publish(stateTopic, "on", true);
     } else if (sensor[s].statusLogic == NC) {
       Serial.print("Published: ");
       Serial.print(stateTopic);
-      Serial.println(" - \"on\"");
-      client.publish(stateTopic, "on", true);
+      Serial.println(" - \"off\"");
+      client.publish(stateTopic, "off", true);
     }
   } else if (state[s].value == LOW) {
     if (sensor[s].statusLogic == NO) {
       Serial.print("Published: ");
       Serial.print(stateTopic);
-      Serial.println(" - \"on\"");
-      client.publish(stateTopic, "on", true);
+      Serial.println(" - \"off\"");
+      client.publish(stateTopic, "off", true);
     } else if (sensor[s].statusLogic == NC) {
       Serial.print("Published: ");
       Serial.print(stateTopic);
-      Serial.println(" - \"off\"");
-      client.publish(stateTopic, "off", true);
+      Serial.println(" - \"on\"");
+      client.publish(stateTopic, "on", true);
     }
   }
 }
