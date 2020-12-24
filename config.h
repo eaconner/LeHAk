@@ -1,7 +1,8 @@
-/*   
- * LeHAk
- * A Home-Automation-friendly ESP8266-based MQTT Binary Sensor Controller
- * Licensed under the MIT License, Copyright (c) 2020 EricConner.net
+/**
+  @project    LeHAk
+  @brief      A Home-Automation-friendly ESP8266-based MQTT Binary Sensor Controller
+  @file       config.h
+  @copyright  Licensed under the MIT License, Copyright (c) 2020 EricConner.net
 */
 
 #ifndef CONFIG_H_
